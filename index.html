@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>شحنة | شحن الألعاب وبطاقات جوجل بلاي وSteam</title>
+<meta name="description" content="شحنة: اشحن شدات ببجي ونقاط FC Mobile وجواهر فري فاير وبطاقات جوجل بلاي وSteam وiTunes بسهولة عبر محفظتك وشام كاش.">
+<link rel="canonical" href="https://shahna.store/">
+<meta property="og:title" content="شحنة | شحن الألعاب والبطاقات"><meta property="og:type" content="website"><meta property="og:url" content="https://shahna.store/">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ea;--panel:#fff;--ink:#14213a;--mute:#5d6a80;--line:#d9d6cb;--coin:#e8a317;--coinink:#2b1d00;--ok:#13795b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b2d;--panel:#172743;--ink:#eef2f7;--mute:#9fb0c8;--line:#2a3d5e;--ok:#3ecf9e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1b2d;--panel:#172743;--ink:#eef2f7;--mute:#9fb0c8;--line:#2a3d5e;--ok:#3ecf9e;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,sans-serif;line-height:1.6}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+h1{font-size:20px;font-weight:800;margin:0}
+.bal{background:var(--coin);color:var(--coinink);font-weight:800;border-radius:999px;padding:4px 14px}
+nav{display:flex;gap:6px;padding:10px 16px;overflow-x:auto}
+nav button{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;padding:6px 16px;border-radius:8px;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+main{max-width:720px;margin:auto;padding:8px 16px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.game{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
+.game b{display:block;font-size:34px;line-height:1.2}
+.game:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--coin);outline-offset:2px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.pk{display:flex;justify-content:space-between;width:100%;padding:10px 12px;margin:6px 0;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:inherit;cursor:pointer}
+.pk.on{border-color:var(--coin);box-shadow:inset 0 0 0 2px var(--coin)}
+input{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin:6px 0}
+.btn{background:var(--coin);color:var(--coinink);border:0;font:inherit;font-weight:800;padding:10px 18px;border-radius:10px;cursor:pointer}
+.btn.s{padding:4px 12px;font-size:14px}
+img.qr{width:220px;max-width:70%;display:block;margin:10px auto;border-radius:12px}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}.m{color:var(--mute);font-size:14px}.ok{color:var(--ok);font-weight:600}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;display:none}
+</style>
+</head>
+<body>
+<header><h1>شحنة</h1><div class="bal" id="bal"></div></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>"$"+(+v).toFixed(2);
+let T=localStorage.getItem("t")||"",AT=sessionStorage.getItem("at")||"",me=null,G=[],tab="store",g=null,pk=null,AD=null;
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",2800)}
+async function api(p,b,t=T){const r=await fetch("/api/"+p,{method:b?"POST":"GET",headers:{"content-type":"application/json","x-token":t},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok)throw new Error(j.err||"خطأ");return j}
+const act=async f=>{try{await f()}catch(e){toast(e.message)}};
+async function boot(){G=await api("games");try{me=await api("me")}catch{me=null}render()}
+function nav(){$("#nav").innerHTML=[["store","المتجر"],["wallet","المحفظة"],["orders","طلباتي"],["admin","الإدارة"]].map(([k,l])=>`<button class="${tab===k?"on":""}" onclick="tab='${k}';render()">${l}</button>`).join("")}
+function store(){let h=`<div class="grid">${G.map((x,i)=>`<button class="game" onclick="g=${i};pk=null;render()"><b>${x.i}</b>${esc(x.n)}</button>`).join("")}</div>`;
+if(g!==null){const x=G[g];h+=`<div class="box"><b>${esc(x.n)}</b>${x.p.map((p,i)=>`<button class="pk ${pk===i?"on":""}" onclick="pk=${i};render()"><span>${esc(p[0])}</span><b>${money(p[1])}</b></button>`).join("")}<input id="pid" placeholder="رقم اللاعب (ID) أو البريد" aria-label="رقم اللاعب"><button class="btn" onclick="buy()">اشترِ من رصيدي</button></div>`}return h}
+const buy=()=>act(async()=>{if(!me){tab="wallet";render();throw new Error("سجّل دخولك أولاً")}if(pk===null)throw new Error("اختر الباقة أولاً");
+await api("buy",{g,pk,id:$("#pid").value});me=await api("me");toast("تم الطلب، سيُنفَّذ قريباً");tab="orders";render()});
+function auth(){return `<div class="box"><b>الدخول أو إنشاء حساب</b><input id="u" placeholder="اسم المستخدم" autocomplete="username" aria-label="اسم المستخدم"><input id="p" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" autocomplete="current-password" aria-label="كلمة السر"><button class="btn" onclick="lg('login')">دخول</button> <button class="btn" onclick="lg('register')">حساب جديد</button></div>`}
+const lg=k=>act(async()=>{const r=await api(k,{u:$("#u").value,p:$("#p").value});T=r.t;localStorage.setItem("t",T);me=await api("me");render()});
+function wallet(){if(!me)return auth();return `<div class="box"><b>رصيدك: ${money(me.bal)}</b> <button class="btn s" onclick="T='';localStorage.removeItem('t');me=null;render()">خروج</button><p class="m">1) حوّل المبلغ عبر شام كاش على الباركود التالي.<br>2) اكتب المبلغ ورقم العملية.<br>3) بعد تأكيد الإدارة ينزل الرصيد.</p><img class="qr" src="/qr.jpg" alt="باركود شام كاش"><input id="amt" type="number" min="1" placeholder="المبلغ بالدولار" aria-label="المبلغ"><input id="tx" placeholder="رقم عملية شام كاش" aria-label="رقم العملية"><button class="btn" onclick="dep()">أرسل طلب الشحن</button></div><div class="box"><b>شحناتي</b>${me.deps.length?me.deps.map(d=>`<div class="row"><span>${money(d.a)} <span class="m">${esc(d.tx)}</span></span><span class="${d.s==="مؤكدة"?"ok":"m"}">${d.s}</span></div>`).join(""):'<p class="m">لا توجد شحنات بعد.</p>'}</div>`}
+const dep=()=>act(async()=>{await api("deposit",{a:$("#amt").value,tx:$("#tx").value});me=await api("me");toast("أُرسل الطلب، بانتظار تأكيد الإدارة");render()});
+function orders(){if(!me)return auth();return `<div class="box"><b>طلباتي</b>${me.ords.length?me.ords.map(o=>`<div class="row"><span>${esc(o.g)} · ${esc(o.p)}<br><span class="m">ID: ${esc(o.id)}</span></span><span class="${o.s==="تم الشحن"?"ok":"m"}">${o.s}</span></div>`).join(""):'<p class="m">لا توجد طلبات بعد.</p>'}</div>`}
+function adm(){if(!AT)return `<div class="box"><b>دخول الإدارة</b><input id="ap" type="password" placeholder="رمز الإدارة" aria-label="رمز الإدارة"><button class="btn" onclick="al()">دخول</button></div>`;
+if(!AD)return '<p class="m">جارٍ التحميل...</p>';
+return `<div class="box"><b>دفعات بانتظار التأكيد</b>${AD.deps.length?AD.deps.map(d=>`<div class="row"><span>${money(d.a)} · ${esc(d.u)}<br><span class="m">${esc(d.tx)}</span></span><button class="btn s" onclick="ad('confirm',${d.i})">تأكيد</button></div>`).join(""):'<p class="m">لا توجد دفعات معلّقة.</p>'}</div><div class="box"><b>طلبات للتنفيذ</b>${AD.ords.length?AD.ords.map(o=>`<div class="row"><span>${esc(o.g)} · ${esc(o.p)} · ${esc(o.u)}<br><span class="m">ID: ${esc(o.id)}</span></span><button class="btn s" onclick="ad('done',${o.i})">تم الشحن</button></div>`).join(""):'<p class="m">لا توجد طلبات معلّقة.</p>'}</div><button class="btn s" onclick="AT='';AD=null;sessionStorage.removeItem('at');render()">خروج</button>`}
+const al=()=>act(async()=>{const r=await api("admin/login",{p:$("#ap").value});AT=r.t;sessionStorage.setItem("at",AT);await ld()});
+const ld=async()=>{try{AD=await api("admin/list",null,AT)}catch(e){AT="";sessionStorage.removeItem("at");toast(e.message)}render()};
+const ad=(k,i)=>act(async()=>{await api("admin/"+k,{i},AT);await ld()});
+function render(){nav();$("#bal").textContent=me?money(me.bal):"زائر";$("#app").innerHTML={store,wallet,orders,admin:adm}[tab]();if(tab==="admin"&&AT&&!AD)ld()}
+boot();
+</script>
+</body>
+</html>
